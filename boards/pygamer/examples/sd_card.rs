@@ -1,8 +1,14 @@
 //! Place a series of bitmap image on the screen from the sd card.
 //! Install Imagemagick and convert 3 pngs from https://rustacean.net/ to centered 86x64 size .raw bytes (where 11008 is 86x64x2)
-//! convert -resize 86x64^ -gravity center -extent 86x64 -background black rustacean-orig-noshadow.png -flip -type truecolor -define bmp:subtype=RGB565 -depth 16 -strip ferris.bmp && tail -c 11008 ferris.bmp > ferris.raw
-//! convert -resize 86x64^ -gravity center -extent 86x64 -background black rustacean-flat-gesture.png -flip -type truecolor -define bmp:subtype=RGB565 -depth 16 -strip ferris1.bmp && tail -c 11008 ferris1.bmp > ferris1.raw
-//! convert -resize 86x64^ -gravity center -extent 86x64 -background black rustacean-flat-happy.png -flip -type truecolor -define bmp:subtype=RGB565 -depth 16 -strip ferris2.bmp && tail -c 11008 ferris2.bmp > ferris2.raw
+//! convert -resize 86x64^ -gravity center -extent 86x64 -background black
+//! rustacean-orig-noshadow.png -flip -type truecolor -define bmp:subtype=RGB565
+//! -depth 16 -strip ferris.bmp && tail -c 11008 ferris.bmp > ferris.raw convert
+//! -resize 86x64^ -gravity center -extent 86x64 -background black
+//! rustacean-flat-gesture.png -flip -type truecolor -define bmp:subtype=RGB565
+//! -depth 16 -strip ferris1.bmp && tail -c 11008 ferris1.bmp > ferris1.raw
+//! convert -resize 86x64^ -gravity center -extent 86x64 -background black
+//! rustacean-flat-happy.png -flip -type truecolor -define bmp:subtype=RGB565
+//! -depth 16 -strip ferris2.bmp && tail -c 11008 ferris2.bmp > ferris2.raw
 //! cp *.raw /Volumes/SDCARD/
 
 #![no_std]
@@ -22,11 +28,11 @@ use hal::prelude::*;
 use hal::time::MegaHertz;
 
 use embedded_graphics::fonts::{Font6x8, Text};
-use embedded_graphics::image::Image;
-use embedded_graphics::pixelcolor::{raw::LittleEndian, Rgb565, RgbColor};
+use embedded_graphics::pixelcolor::{Rgb565, RgbColor};
 use embedded_graphics::prelude::*;
 use embedded_graphics::style::TextStyle;
 use embedded_graphics::{egrectangle, primitive_style};
+use embedded_graphics::{image::Image, image::ImageRaw, image::ImageRawLE};
 
 #[entry]
 fn main() -> ! {
@@ -111,8 +117,9 @@ fn main() -> ! {
             {
                 cont.read(&volume, &mut f, &mut scratch).unwrap();
 
-                let ferris: Image<Rgb565, LittleEndian> = Image::new(&scratch, 86, 64);
-                ferris.translate(Point::new(42, 32)).draw(&mut display);
+                let raw_image: ImageRawLE<Rgb565> = ImageRaw::new(&scratch, 86, 64);
+                let ferris: Image<_, Rgb565> = Image::new(&raw_image, Point::new(42, 32));
+                ferris.draw(&mut display).unwrap();
 
                 cont.close_file(&volume, f).ok();
             } else {
