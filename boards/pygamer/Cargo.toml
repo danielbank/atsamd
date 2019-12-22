@@ -58,6 +58,9 @@ optional = true
 git = "https://github.com/jacobrosenthal/st7735-lcd-rs"
 rev = "738e4f53fcb52e22e0a6f8bb13df6dbec651af32"
 
+[patch.crates-io]
+embedded-sdmmc = {git = "https://github.com/thejpster/embedded-sdmmc-rs", rev="20efcf5"}
+
 [features]
 # ask the HAL to enable atsamd51j20a support
 default = ["rt", "atsamd-hal/samd51j19a", "atsamd-hal/samd51", "unproven"]
