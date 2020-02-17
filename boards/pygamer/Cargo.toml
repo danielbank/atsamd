@@ -40,7 +40,7 @@ version = "~0.3"
 
 [dev-dependencies]
 panic-halt = "~0.2"
-embedded-graphics = "0.6.0-alpha.3"
+embedded-graphics = "0.6.0-beta.1"
 smart-leds = "0.3"
 ws2812-spi = "0.2.0"
 lis3dh = "0.1.0"
@@ -55,9 +55,8 @@ version = "~0.1"
 optional = true
 
 [dependencies.st7735-lcd]
-version ="0.6.0-alpha.3"
 git = "https://github.com/jacobrosenthal/st7735-lcd-rs"
-rev = "dfc3f0a0fd61ac4fcf836a146805a6640b1a05f6"
+rev = "738e4f53fcb52e22e0a6f8bb13df6dbec651af32"
 
 [features]
 # ask the HAL to enable atsamd51j20a support

@@ -1,8 +1,11 @@
 //! Place a bitmap image on the screen.
 //! Convert a png to .raw bytes
-//! * With imagemagick `convert ferris.png -flip -type truecolor -define bmp:subtype=RGB565 -depth 16 -strip ferris.bmp`
-//! * Or export images directly from GIMP by saving as .bmp and choosing 16bit R5 G6 B5
-//! Then `tail -c 11008 ferris.bmp > ferris.raw` where c is width*height*2 and our ferris.png was 86x64
+//! * With imagemagick `convert ferris.png -flip -type truecolor -define
+//!   bmp:subtype=RGB565 -depth 16 -strip ferris.bmp`
+//! * Or export images directly from GIMP by saving as .bmp and choosing 16bit
+//!   R5 G6 B5
+//! Then `tail -c 11008 ferris.bmp > ferris.raw` where c is width*height*2 and
+//! our ferris.png was 86x64
 
 #![no_std]
 #![no_main]
@@ -11,10 +14,10 @@
 use panic_halt;
 use pygamer as hal;
 
-use embedded_graphics::image::Image;
-use embedded_graphics::pixelcolor::{raw::LittleEndian, Rgb565, RgbColor};
+use embedded_graphics::pixelcolor::{Rgb565, RgbColor};
 use embedded_graphics::prelude::*;
 use embedded_graphics::{egrectangle, primitive_style};
+use embedded_graphics::{image::Image, image::ImageRaw, image::ImageRawLE};
 
 use hal::clock::GenericClockController;
 use hal::entry;
@@ -51,10 +54,12 @@ fn main() -> ! {
         bottom_right = (160, 128),
         style = primitive_style!(stroke_width = 0, fill_color = RgbColor::BLACK)
     )
-    .draw(&mut display);
+    .draw(&mut display)
+    .unwrap();
 
-    let ferris: Image<Rgb565, LittleEndian> = Image::new(include_bytes!("./ferris.raw"), 86, 64);
-    ferris.translate(Point::new(32, 32)).draw(&mut display);
+    let raw_image: ImageRawLE<Rgb565> = ImageRaw::new(include_bytes!("./ferris.raw"), 86, 64);
+    let ferris: Image<_, Rgb565> = Image::new(&raw_image, Point::new(32, 32));
 
+    ferris.draw(&mut display).unwrap();
     loop {}
 }
