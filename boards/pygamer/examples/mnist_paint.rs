@@ -29,7 +29,7 @@ const DISP_SIZE_X: i32 = 160;
 const DISP_SIZE_Y: i32 = 128;
 
 const KEYBOARD_DELTA: i32 = 4;
-const FOREGROUND_COLOR: Rgb565 = RgbColor::WHITE;
+const CURSOR_COLOR: Rgb565 = RgbColor::RED;
 const PIXEL_SIZE: i32 = 4;
 
 fn idx_to_point(idx: usize) -> Point {
@@ -43,8 +43,14 @@ fn point_to_idx(pair: (i32, i32)) -> usize {
 fn mnist_pixel(pair: (i32, i32), pixels: &[u32; 784]) -> Pixel<Rgb565> {
     let idx = point_to_idx(pair);
     match pixels[idx] {
-        1 => Pixel(Point::new(pair.0, pair.1), RgbColor::WHITE),
-        _ => Pixel(Point::new(pair.0, pair.1), RgbColor::BLACK),
+        1 => Pixel(
+            Point::new(pair.0 * PIXEL_SIZE, pair.1 * PIXEL_SIZE),
+            RgbColor::WHITE,
+        ),
+        _ => Pixel(
+            Point::new(pair.0 * PIXEL_SIZE, pair.1 * PIXEL_SIZE),
+            RgbColor::BLACK,
+        ),
     }
 }
 
@@ -80,51 +86,26 @@ fn main() -> ! {
     // list of "pixels" for mnist inference
     let mut pixels: [u32; 784] = [1; 784];
 
-    // // draw background
-    // (0..DISP_SIZE_X)
-    //     .cartesian_product(0..DISP_SIZE_Y)
-    //     .map(|point| Pixel(Point::new(point.0 as i32, point.1 as i32), RgbColor::BLACK))
-    //     .draw(&mut display);
-
     // draw background
+    (0..DISP_SIZE_X)
+        .cartesian_product(0..DISP_SIZE_Y)
+        .map(|point| Pixel(Point::new(point.0 as i32, point.1 as i32), RgbColor::BLACK))
+        .draw(&mut display);
+
+    // draw mnist canvas
     (0..28)
         .cartesian_product(0..28)
         .map(|point| mnist_pixel(point, &pixels))
         .draw(&mut display);
 
     // draw square at starting point
-    let mut position = Point::new(14 * PIXEL_SIZE, 14 * PIXEL_SIZE);
+    let mut position = Point::new(13 * PIXEL_SIZE, 13 * PIXEL_SIZE);
     Rectangle::new(
         position,
         Point::new(position.x + PIXEL_SIZE, position.y + PIXEL_SIZE),
     )
-    .into_styled(PrimitiveStyle::with_fill(FOREGROUND_COLOR))
+    .into_styled(PrimitiveStyle::with_fill(CURSOR_COLOR))
     .draw(&mut display);
 
-    loop {
-        let (x, y) = joystick.read(&mut adc1);
-
-        // zero around zero
-        let x: i16 = x as i16 - 2048;
-        let y: i16 = y as i16 - 2048;
-
-        // // basically into quadrants
-        // if x > 20 {
-        //     let delta = Point::new(KEYBOARD_DELTA, KEYBOARD_DELTA);
-        //     let new_position = position + delta;
-        //     move_rectangle(&mut display, &mut position, new_position);
-        // } else if x > 20 && y >= -20 {
-        //     let delta = Point::new(KEYBOARD_DELTA, -KEYBOARD_DELTA);
-        //     let new_position = position + delta;
-        //     move_rectangle(&mut display, &mut position, new_position);
-        // } else if x >= -20 && y > 20 {
-        //     let delta = Point::new(-KEYBOARD_DELTA, KEYBOARD_DELTA);
-        //     let new_position = position + delta;
-        //     move_rectangle(&mut display, &mut position, new_position);
-        // } else if x > -20 && y <= -20 {
-        //     let delta = Point::new(-KEYBOARD_DELTA, -KEYBOARD_DELTA);
-        //     let new_position = position + delta;
-        //     move_rectangle(&mut display, &mut position, new_position);
-        // }
-    }
+    loop {}
 }
